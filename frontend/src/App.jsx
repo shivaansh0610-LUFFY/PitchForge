@@ -122,7 +122,7 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        Built with ☕ and Revolution · PitchForge 2025
+        💡 Built with passion by Shivaansh · PitchForge 2026
       </footer>
     </div>
   );
