@@ -12,7 +12,7 @@ const MIN_PITCH_LENGTH = 50;   // characters
 const MAX_PITCH_LENGTH = 5000; // characters
 
 router.post("/analyze-pitch", rateLimiter, async (req, res) => {
-  const { pitch } = req.body;
+  const { pitch, mode = "coach" } = req.body;
 
   // ── Input validation ──────────────────────────────────────────────────────
   if (!pitch || typeof pitch !== "string") {
@@ -43,7 +43,7 @@ router.post("/analyze-pitch", rateLimiter, async (req, res) => {
     const apiKey = process.env.OPEN_ROUTER_API_KEY;
     if (!apiKey) throw new Error("Server misconfiguration: API key not set.");
 
-    const feedback = await analyzePitch(trimmed, apiKey);
+    const feedback = await analyzePitch(trimmed, apiKey, mode);
 
     return res.status(200).json({
       success: true,
