@@ -2,7 +2,6 @@
 
 import { usePitchAnalyzer } from "./hooks/usePitchAnalyzer";
 import { Results } from "./components/Results";
-import { GoogleLogin, googleLogout } from "@react-oauth/google";
 import { useState, useEffect } from "react";
 
 const PLACEHOLDER = `We're building a SaaS platform that helps small restaurants manage their online orders from multiple platforms (Uber Eats, Swiggy, Zomato) in a single dashboard. 
@@ -20,28 +19,22 @@ const LOADING_MESSAGES = [
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [loginName, setLoginName] = useState("");
+  const [mode, setMode] = useState("coach");
 
-  const handleLoginSuccess = async (credentialResponse) => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "/api"}/auth/google`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: credentialResponse.credential }),
+  const handleCustomLogin = (e) => {
+    e.preventDefault();
+    if (loginName.trim()) {
+      setUser({
+        name: loginName.trim(),
+        picture: `https://api.dicebear.com/7.x/initials/svg?seed=${loginName.trim()}`,
       });
-      const data = await res.json();
-      if (data.success) {
-        setUser(data.user);
-      } else {
-        console.error("Login failed:", data.error);
-      }
-    } catch (err) {
-      console.error("Error verifying token:", err);
     }
   };
 
   const handleLogout = () => {
-    googleLogout();
     setUser(null);
+    setLoginName("");
   };
 
   const {
@@ -73,12 +66,42 @@ export default function App() {
               <button className="btn-logout" onClick={handleLogout}>Log Out</button>
             </div>
           ) : (
-            <GoogleLogin
-              onSuccess={handleLoginSuccess}
-              onError={() => console.error("Login Failed")}
-              theme="filled_black"
-              shape="pill"
-            />
+            <div className="login-container">
+              <form onSubmit={handleCustomLogin} className="custom-login-form">
+                <input
+                  type="text"
+                  placeholder="Enter your unique name..."
+                  value={loginName}
+                  onChange={(e) => setLoginName(e.target.value)}
+                  autoFocus
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: "20px",
+                    border: "1px solid var(--border)",
+                    background: "var(--surface)",
+                    color: "var(--text)",
+                    marginRight: "10px",
+                    fontFamily: "var(--font-primary)"
+                  }}
+                />
+                <button 
+                  type="submit" 
+                  disabled={!loginName.trim()}
+                  style={{
+                    padding: "10px 20px",
+                    borderRadius: "20px",
+                    border: "none",
+                    background: loginName.trim() ? "var(--text)" : "var(--surface-2)",
+                    color: loginName.trim() ? "var(--surface)" : "var(--text-3)",
+                    cursor: loginName.trim() ? "pointer" : "not-allowed",
+                    fontFamily: "var(--font-primary)",
+                    fontWeight: "600"
+                  }}
+                >
+                  Start Pitching
+                </button>
+              </form>
+            </div>
           )}
         </div>
       </nav>
@@ -100,7 +123,14 @@ export default function App() {
             {/* ── Input area ─────────────────────────────────────── */}
             <div className="input-card">
               <div className="input-header">
-                <label htmlFor="pitch-input">Your Pitch</label>
+                <div className="input-header-left">
+                  <label htmlFor="pitch-input">Your Pitch</label>
+                  <div className="mode-toggle">
+                    <button className={`mode-btn ${mode === "coach" ? "active" : ""}`} onClick={() => setMode("coach")}>🧑‍🏫 Coach</button>
+                    <button className={`mode-btn ${mode === "shark" ? "active" : ""}`} onClick={() => setMode("shark")}>🦈 Shark</button>
+                    <button className={`mode-btn ${mode === "grandma" ? "active" : ""}`} onClick={() => setMode("grandma")}>👵 Grandma</button>
+                  </div>
+                </div>
                 <span className={`char-count ${charCount > 4800 ? "warn" : ""}`}>
                   {charCount} / 5000
                 </span>
@@ -130,7 +160,7 @@ export default function App() {
                 </span>
                 <button
                   className="btn-primary"
-                  onClick={analyze}
+                  onClick={() => analyze(mode)}
                   disabled={!isReady}
                 >
                   Analyze Pitch →
