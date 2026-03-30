@@ -11,7 +11,7 @@ export function usePitchAnalyzer() {
   const [error, setError] = useState(null);
   const [editableSuggestions, setEditableSuggestions] = useState([]);
 
-  const analyze = useCallback(async () => {
+  const analyze = useCallback(async (mode = "coach") => {
     if (!pitch.trim() || pitch.trim().length < 50) {
       setError("Your pitch needs at least 50 characters.");
       setStatus("error");
@@ -23,7 +23,7 @@ export function usePitchAnalyzer() {
     setResult(null);
 
     try {
-      const data = await analyzePitch(pitch);
+      const data = await analyzePitch(pitch, mode);
       setResult(data);
 
       // Initialize editable suggestions from the AI response
