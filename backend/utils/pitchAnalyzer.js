@@ -1,10 +1,6 @@
 // utils/pitchAnalyzer.js
-// Core AI logic: builds the prompt and calls the Anthropic Claude API
+// Core AI logic: builds the prompt and calls the OpenRouter API
 
-/**
- * Builds a structured system prompt that tells the model exactly
- * what to evaluate and how to format the response.
- */
 const SYSTEM_PROMPT = `You are PitchForge, an expert pitch coach for startups, hackathons, and student founders.
 
 Your job is to analyze a pitch and return ONLY a valid JSON object — no markdown, no explanation, no extra text.
@@ -50,43 +46,40 @@ Rules:
 - All scores must be integers between 0 and 100.`;
 
 /**
- * Calls the Anthropic Messages API with the user's pitch text.
+ * Calls the OpenRouter API with the user's pitch text.
  * @param {string} pitchText - The raw pitch submitted by the user
- * @param {string} apiKey - Anthropic API key
+ * @param {string} apiKey - OpenRouter API key
  * @returns {Promise<Object>} Parsed JSON feedback object
  */
 export async function analyzePitch(pitchText, apiKey) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
+      "Authorization": `Bearer ${apiKey}`,
+      "HTTP-Referer": process.env.FRONTEND_URL || "http://localhost:5173",
+      "X-Title": "PitchForge",
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "claude-opus-4-5",
-      max_tokens: 1500,
-      system: SYSTEM_PROMPT,
+      model: "openai/gpt-4o-mini", // Good default fast model on OpenRouter
       messages: [
-        {
-          role: "user",
-          content: `Analyze this pitch:\n\n${pitchText}`,
-        },
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: `Analyze this pitch:\n\n${pitchText}` }
       ],
-    }),
+      response_format: { type: "json_object" }
+    })
   });
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `API error: ${response.status}`);
+    throw new Error(err?.error?.message || `OpenRouter API error: ${response.status}`);
   }
 
   const data = await response.json();
-  const rawText = data.content?.[0]?.text?.trim();
+  const rawText = data.choices[0].message.content.trim();
 
   if (!rawText) throw new Error("Empty response from AI model.");
 
-  // Strip any accidental markdown fences the model might add
   const cleaned = rawText.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
 
   let parsed;

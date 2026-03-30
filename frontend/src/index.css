@@ -98,6 +98,48 @@ body {
   color: var(--text-3);
   font-family: var(--font-mono);
 }
+.nav-auth-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px 12px 6px 6px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: var(--font-display);
+}
+.btn-logout {
+  background: transparent;
+  color: var(--text-2);
+  border: none;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+.btn-logout:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.1);
+}
 
 /* ── Main ──────────────────────────────────────────────────── */
 .main {
@@ -148,18 +190,21 @@ body {
 
 /* ── Input card ────────────────────────────────────────────── */
 .input-card {
-  background: var(--surface);
+  background: rgba(17, 17, 21, 0.6);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  transition: border-color 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 .input-card:focus-within {
-  border-color: var(--border-hover);
-  box-shadow: 0 0 0 1px var(--border-hover), 0 8px 40px rgba(0,0,0,0.4);
+  background: rgba(17, 17, 21, 0.8);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 8px 40px rgba(232, 100, 42, 0.15);
 }
 
 .input-header {
@@ -403,10 +448,16 @@ body {
 @media (max-width: 560px) { .sw-grid { grid-template-columns: 1fr; } }
 
 .sw-card {
-  background: var(--surface);
+  background: rgba(17, 17, 21, 0.5);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.sw-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
 .sw-card h3 {
   font-family: var(--font-display);

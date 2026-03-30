@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import analyzeRouter from "./routes/analyze.js";
+import authRouter from "./routes/auth.js";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(express.json({ limit: "20kb" })); // Reject huge payloads early
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use("/api", analyzeRouter);
+app.use("/api/auth", authRouter);
 
 // Health check — useful for deployment platforms
 app.get("/health", (_, res) => {

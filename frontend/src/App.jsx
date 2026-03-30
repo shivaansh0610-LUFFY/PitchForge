@@ -2,6 +2,8 @@
 
 import { usePitchAnalyzer } from "./hooks/usePitchAnalyzer";
 import { Results } from "./components/Results";
+import { GoogleLogin, googleLogout } from "@react-oauth/google";
+import { useState, useEffect } from "react";
 
 const PLACEHOLDER = `We're building a SaaS platform that helps small restaurants manage their online orders from multiple platforms (Uber Eats, Swiggy, Zomato) in a single dashboard. 
 
@@ -17,6 +19,31 @@ const LOADING_MESSAGES = [
 ];
 
 export default function App() {
+  const [user, setUser] = useState(null);
+
+  const handleLoginSuccess = async (credentialResponse) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "/api"}/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUser(data.user);
+      } else {
+        console.error("Login failed:", data.error);
+      }
+    } catch (err) {
+      console.error("Error verifying token:", err);
+    }
+  };
+
+  const handleLogout = () => {
+    googleLogout();
+    setUser(null);
+  };
+
   const {
     pitch, setPitch,
     status, result, error,
@@ -38,7 +65,22 @@ export default function App() {
           <span className="logo-icon">⬡</span>
           <span>PitchForge</span>
         </div>
-        <span className="nav-tagline">AI pitch coach for founders</span>
+        <div className="nav-auth-container">
+          {user ? (
+            <div className="user-profile">
+              <img src={user.picture} alt="Profile" className="user-avatar" referrerPolicy="no-referrer" />
+              <span className="user-name">{user.name}</span>
+              <button className="btn-logout" onClick={handleLogout}>Log Out</button>
+            </div>
+          ) : (
+            <GoogleLogin
+              onSuccess={handleLoginSuccess}
+              onError={() => console.error("Login Failed")}
+              theme="filled_black"
+              shape="pill"
+            />
+          )}
+        </div>
       </nav>
 
       <main className="main">
@@ -139,6 +181,3 @@ function LoadingMessage({ messages }) {
 
   return <p className="loading-msg" key={index}>{messages[index]}</p>;
 }
-
-// useState/useEffect needed for LoadingMessage
-import { useState, useEffect } from "react";

@@ -40,7 +40,7 @@ router.post("/analyze-pitch", rateLimiter, async (req, res) => {
 
   // ── AI Analysis ───────────────────────────────────────────────────────────
   try {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.OPEN_ROUTER_API_KEY;
     if (!apiKey) throw new Error("Server misconfiguration: API key not set.");
 
     const feedback = await analyzePitch(trimmed, apiKey);
