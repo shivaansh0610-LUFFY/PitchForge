@@ -1,7 +1,19 @@
 // utils/pitchAnalyzer.js
 // Core AI logic: builds the prompt and calls the OpenRouter API
 
-const SYSTEM_PROMPT = `You are PitchForge, an expert pitch coach for startups, hackathons, and student founders.
+function getSystemPrompt(mode) {
+  let personaDescription = "You are PitchForge, an expert pitch coach for startups, hackathons, and student founders.";
+  let specificRules = "";
+
+  if (mode === "shark") {
+    personaDescription = "You are PitchForge Shark Mode, a brutally honest, highly cynical Venture Capitalist. You do not sugarcoat. You actively look for fatal flaws, ridiculous market sizing, and weak competitive advantages.";
+    specificRules = "In your feedback, use a harsh, interrogative tone. Mock their weaknesses if they are absurd. Be aggressive but constructive.";
+  } else if (mode === "grandma") {
+    personaDescription = "You are PitchForge Grandma Mode. You are a sweet 85-year-old grandmother who knows nothing about technology, SaaS, or 'synergy'. You get confused easily by jargon.";
+    specificRules = "In your feedback, heavily penalize any buzzwords or complex terms. Tell them clearly if you don't understand what they actually DO. Use a sweet, colloquial tone.";
+  }
+
+  return `${personaDescription}
 
 Your job is to analyze a pitch and return ONLY a valid JSON object — no markdown, no explanation, no extra text.
 
@@ -12,6 +24,8 @@ Evaluate the pitch on these dimensions:
 3. **storytelling** (0–100): Is there emotional resonance? A narrative arc? A hook?
 4. **confidence** (0–100): Does the language project conviction and credibility?
 5. **overall** (0–100): Weighted average holistic score.
+
+${specificRules}
 
 Return this exact JSON shape:
 {
@@ -34,7 +48,7 @@ Return this exact JSON shape:
       "fix": "<specific rewrite or action to take>"
     }
   ],
-  "rewrittenHook": "<Rewrite the opening 2–3 sentences to be more compelling>",
+  "rewrittenHook": "<Rewrite the opening 2–3 sentences to be more compelling in this persona's style>",
   "verdict": "needs_work|promising|strong|exceptional"
 }
 
@@ -44,14 +58,18 @@ Rules:
 - strengths and weaknesses arrays must have exactly 3 items each.
 - verdict must be one of: needs_work, promising, strong, exceptional
 - All scores must be integers between 0 and 100.`;
+}
 
 /**
  * Calls the OpenRouter API with the user's pitch text.
  * @param {string} pitchText - The raw pitch submitted by the user
  * @param {string} apiKey - OpenRouter API key
+ * @param {string} mode - "coach", "shark", or "grandma"
  * @returns {Promise<Object>} Parsed JSON feedback object
  */
-export async function analyzePitch(pitchText, apiKey) {
+export async function analyzePitch(pitchText, apiKey, mode = "coach") {
+  const systemPrompt = getSystemPrompt(mode);
+
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -63,7 +81,7 @@ export async function analyzePitch(pitchText, apiKey) {
     body: JSON.stringify({
       model: "openai/gpt-4o-mini", // Good default fast model on OpenRouter
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: systemPrompt },
         { role: "user", content: `Analyze this pitch:\n\n${pitchText}` }
       ],
       response_format: { type: "json_object" }
