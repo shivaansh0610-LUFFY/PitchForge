@@ -7,10 +7,11 @@
 ## ✨ Features
 
 * 🎯 AI-powered pitch analysis (clarity, structure, storytelling, confidence)
-* 📊 Visual scoring system with animated UI
+* 🎭 **Dynamic AI Personas:** Choose between Coach (helpful), Shark (brutal VC roast), or Grandma (jargon-free clarity)
+* 📊 Visual scoring system with glassmorphism UI
 * 🧠 Smart suggestions with actionable fixes
 * ✍️ AI-generated improved hook for your pitch
-* ⚡ Fast analysis (~10–15 seconds)
+* ⚡ Fast analysis (~10–15 seconds) using OpenRouter / Gemini 1.5 Flash
 * 🛡 Rate-limited backend for stability
 
 ---
@@ -21,8 +22,8 @@
 | ---------- | -------------------- |
 | Frontend   | React 18, Vite, CSS  |
 | Backend    | Node.js, Express     |
-| AI         | Anthropic Claude API |
-| Deployment | Vercel + Railway     |
+| AI         | OpenRouter API       |
+| Deployment | Vercel + Render      |
 
 ---
 
@@ -67,7 +68,7 @@ cp .env.example .env
 Add your key in `.env`:
 
 ```
-ANTHROPIC_API_KEY=your-key
+OPEN_ROUTER_API_KEY=your-openrouter-key
 PORT=3001
 FRONTEND_URL=http://localhost:5173
 ```
@@ -115,8 +116,8 @@ Returns:
 
 ### Backend
 
-* Railway / Render
-* Set env: `ANTHROPIC_API_KEY`, `FRONTEND_URL`
+* Render / Railway
+* Set env: `OPEN_ROUTER_API_KEY`, `FRONTEND_URL`
 
 ### Frontend
 
@@ -131,17 +132,16 @@ VITE_API_URL=https://your-backend-url/api
 
 ## 🧠 Future Improvements
 
-* Save pitch history
+* Save pitch history to a database (MongoDB/Supabase)
 * Compare multiple pitches
 * Export results as PDF
-* Authentication system
 * Shareable report links
 
 ---
 
-## 📸 Demo (Add Screenshots Here)
+## 📸 Demo
 
-*Add screenshots or GIFs of your app UI*
+*(Screenshots coming soon)*
 
 ---
 
